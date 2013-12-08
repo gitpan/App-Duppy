@@ -116,7 +116,7 @@ App::Duppy - a wrapper around casperjs to pass test configurations as json files
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 SYNOPSIS
 

@@ -2,6 +2,8 @@ use Test::More;
 use FindBin qw/$Bin/; 
 use lib "$Bin/../lib";
 use App::Duppy; 
+use IPC::Cmd qw/can_run/;
+plan skip_all => 'Casperjs is not installed on your system' unless (can_run('casperjs'));
 
 my $duppy = App::Duppy->new_with_options(test => ["$Bin/../t/fixtures/casper_ex.json"]);
 isa_ok($duppy,'App::Duppy');

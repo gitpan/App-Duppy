@@ -68,30 +68,34 @@ sub run_casper {
           or croak
           'Cannot find casperjs on your system. Please make sure it is installed or the path provided is ok';
     }
-    my $silent_run = shift;
+    my $silent_run  = shift;
+    my $buff_return = '';
     foreach my $test ( keys %{ $self->tests } ) {
         my $param_spec = $self->transform_arg_spec( $self->tests->{$test} );
         unshift @{ $param_spec->{cmd} }, $full_path;
         push @{ $param_spec->{cmd} }, "test", @{ $param_spec->{paths} };
+        $buff_return .= "=" x 5 . " Running test file $test " . "=" x 5 . "\n";
         my ( $ok, $err, $full_buff ) =
           run( command => \@{ $param_spec->{cmd} } );
-        my $buff_return = join( "", @$full_buff );
-        if ($silent_run) {
-            return $buff_return;
-        }
-        else {
-            print $buff_return;
-            return;
-        }
+        $buff_return .= join( "", @$full_buff );
+    }
+
+    if ($silent_run) {
+        return $buff_return;
+    }
+    else {
+        print $buff_return;
+        return;
     }
 }
 
 sub transform_arg_spec {
     my $self   = shift;
-    my $params = shift;
+    my $ref_params = shift;
     my $ret    = {};
-    $ret->{paths} = delete $params->{paths};
-    while ( my ( $k, $v ) = each %{$params} ) {
+    my %params = %{$ref_params};
+    $ret->{paths} = delete $params{paths};
+    while ( my ( $k, $v ) = each %params ) {
         if ( ref($v) eq 'ARRAY' ) {
             $v = join( ',', @{$v} );
         }
@@ -117,7 +121,7 @@ App::Duppy - a wrapper around casperjs to pass test configurations as json files
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 SYNOPSIS
 

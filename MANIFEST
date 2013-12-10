@@ -11,6 +11,7 @@ lib/App/Duppy.pm
 results.xml
 t/00_sanity.t
 t/01_runcasper.t
+t/02_runcaspertwice_sametestfile.t
 t/fixtures/casper_ex.json
 t/fixtures/casper_working_ex.json
 t/fixtures/inc.js

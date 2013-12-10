@@ -17,13 +17,13 @@ option 'test' => (
     required => 1,
     format   => 's@',
     doc =>
-'Test option: one ore more json file(s) containing the casperjs tests to perform'
+      'Test option: one ore more json file(s) containing the casperjs tests to perform'
 );
 
 option 'casper_path' => (
-    is      => 'rw',
-    format  => 's',
-    doc     => 'Path to casperjs, if not standard',
+    is        => 'rw',
+    format    => 's',
+    doc       => 'Path to casperjs, if not standard',
     predicate => 'has_casper_path',
 );
 
@@ -50,25 +50,29 @@ sub _build_tests {
 }
 
 sub run_casper {
-    my $self      = shift;
+    my $self = shift;
     my $full_path;
-    if ($self->has_casper_path) {
-        if (-f $self->casper_path and -x $self->casper_path) {
+    if ( $self->has_casper_path ) {
+        if ( -f $self->casper_path and -x $self->casper_path ) {
             $full_path = $self->casper_path;
-        } else {
-            croak sprintf(q{'%s' is not an executable file},
-                          $self->casper_path);
         }
-    } else {
-        $full_path = can_run( 'casperjs' )
-            or croak 'Cannot find casperjs on your system. Please make sure it is installed or the path provided is ok';
+        else {
+            croak sprintf(
+                q{'%s' is not an executable file},
+                $self->casper_path
+            );
+        }
+    }
+    else {
+        $full_path = can_run('casperjs')
+          or croak
+          'Cannot find casperjs on your system. Please make sure it is installed or the path provided is ok';
     }
     my $silent_run = shift;
     foreach my $test ( keys %{ $self->tests } ) {
         my $param_spec = $self->transform_arg_spec( $self->tests->{$test} );
         unshift @{ $param_spec->{cmd} }, $full_path;
-        push @{ $param_spec->{cmd} }, "test",
-          join( " ", @{ $param_spec->{paths} } );
+        push @{ $param_spec->{cmd} }, "test", @{ $param_spec->{paths} };
         my ( $ok, $err, $full_buff ) =
           run( command => \@{ $param_spec->{cmd} } );
         my $buff_return = join( "", @$full_buff );
@@ -105,10 +109,7 @@ sub transform_arg_spec {
 1;
 
 __END__
-
 =pod
-
-=encoding UTF-8
 
 =head1 NAME
 
@@ -116,7 +117,7 @@ App::Duppy - a wrapper around casperjs to pass test configurations as json files
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 SYNOPSIS
 
@@ -155,3 +156,4 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
+

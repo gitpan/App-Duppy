@@ -1,11 +1,15 @@
-use Test::More; 
-use FindBin qw/$Bin/; 
+use Test::More;
+use FindBin qw/$Bin/;
 use lib "$Bin/../lib";
-use App::Duppy; 
+use App::Duppy;
 use IPC::Cmd qw/can_run/;
-plan skip_all => 'Casperjs is not installed on your system' unless (can_run('casperjs'));
+plan skip_all => 'Casperjs is not installed on your system'
+  unless ( can_run('casperjs') );
 
-my $duppy = App::Duppy->new_with_options(test => ["$Bin/../t/fixtures/casper_working_ex.json"]);
-like $duppy->run_casper(1), qr/PASS 6 tests executed/, 'And our casperjs tests pass like a boss';
+my $duppy =
+  App::Duppy->new_with_options(
+    test => ["$Bin/../t/fixtures/casper_working_ex.json"] );
+like $duppy->run_casper(1), qr/PASS 8 tests executed/,
+  'And our casperjs tests pass like a boss';
 done_testing;
 

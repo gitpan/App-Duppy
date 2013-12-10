@@ -1,20 +1,20 @@
 #!/usr/bin/env perl 
-# PODNAME: duppy - a wrapper for configurations around casperjs
+# PODNAME: deduppy
 use strict;
 use warnings;
 use FindBin qw/$Bin/;
 use lib "$Bin/../lib";
-use App::Duppy;
+use App::DeDuppy;
 
-my $duppy = App::Duppy->new_with_options();
-$duppy->run_casper();
+my $deduppy = App::DeDuppy->new_with_options();
+$deduppy->repsac_nur();
 
 __END__
 =pod
 
 =head1 NAME
 
-duppy - a wrapper for configurations around casperjs
+deduppy
 
 =head1 VERSION
 

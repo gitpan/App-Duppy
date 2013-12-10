@@ -1,7 +1,7 @@
 
 
 This archive contains the distribution App-Duppy,
-version 0.02:
+version 0.03:
 
   a wrapper around casperjs to pass test configurations as json files
 

@@ -5,7 +5,8 @@ use strict;
 use warnings;
 use Moo;
 use MooX::Options;
-use IPC::Cmd qw/can_run run/;
+use IPC::Run qw/run new_chunker/;
+use File::Which;
 use IO::All;
 use JSON;
 use DDP;
@@ -28,6 +29,10 @@ option 'casper_path' => (
 );
 
 has 'tests' => ( is => 'lazy', );
+
+has 'buffer_return' => ( is => 'rw', default => sub {''});
+
+has 'silent_run' => (is => 'rw', default => sub { 0 });
 
 sub _build_tests {
     my $self = shift;
@@ -52,6 +57,7 @@ sub _build_tests {
 sub run_casper {
     my $self = shift;
     my $full_path;
+    $self->buffer_return('') if ($self->buffer_return);
     if ( $self->has_casper_path ) {
         if ( -f $self->casper_path and -x $self->casper_path ) {
             $full_path = $self->casper_path;
@@ -64,36 +70,47 @@ sub run_casper {
         }
     }
     else {
-        $full_path = can_run('casperjs')
-          or croak
-          'Cannot find casperjs on your system. Please make sure it is installed or the path provided is ok';
+        $full_path = which('casperjs');
     }
-    my $silent_run  = shift;
-    my $buff_return = '';
+    $self->silent_run (shift @_);
     foreach my $test ( keys %{ $self->tests } ) {
         my $param_spec = $self->transform_arg_spec( $self->tests->{$test} );
         unshift @{ $param_spec->{cmd} }, $full_path;
         push @{ $param_spec->{cmd} }, "test", @{ $param_spec->{paths} };
-        $buff_return .= "=" x 5 . " Running test file $test " . "=" x 5 . "\n";
-        my ( $ok, $err, $full_buff ) =
-          run( command => \@{ $param_spec->{cmd} } );
-        $buff_return .= join( "", @$full_buff );
+        print "\n\n\n";
+        print "="x10;
+        print "> Running test from file $test... \n\n\n";
+        run  $param_spec->{cmd}, '>', new_chunker("\n"),$self->lines_handler;
     }
 
-    if ($silent_run) {
-        return $buff_return;
+    if ($self->silent_run) {
+        return $self->buffer_return;
     }
     else {
-        print $buff_return;
         return;
     }
 }
 
+sub lines_handler { 
+    my ($self,$in_ref,$out_ref) = @_;
+    return sub { 
+        my ($out) = @_;
+        if ($out) { 
+            if ($self->silent_run) { 
+                $self->buffer_return($self->buffer_return.$out);
+            }
+            else { 
+                print $out;
+            }
+        }
+    }
+}
+
 sub transform_arg_spec {
-    my $self   = shift;
+    my $self       = shift;
     my $ref_params = shift;
-    my $ret    = {};
-    my %params = %{$ref_params};
+    my $ret        = {};
+    my %params     = %{$ref_params};
     $ret->{paths} = delete $params{paths};
     while ( my ( $k, $v ) = each %params ) {
         if ( ref($v) eq 'ARRAY' ) {
@@ -121,7 +138,7 @@ App::Duppy - a wrapper around casperjs to pass test configurations as json files
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
 =head1 SYNOPSIS
 
@@ -136,7 +153,35 @@ and he came out with this suggestion.
 
 So I decided to write a little wrapper around casperjs that would be able to launch tests using the format he suggested. 
 
-See https://github.com/n1k0/casperjs/issues/745 for more information about it. 
+This script is dead simple: given a json file, it builds out a valid list of parameters that is passed to casperjs.
+It then displays the output returned by casperjs.
+
+=head2 JSON File syntax 
+
+The JSON file you use to wrap up your tests consists in valid casperjs command line options, excepted for the path argument, 
+which will resolve to the path where your test files are. 
+
+  {
+    "auto-exit": false,
+    "concise": false,
+    "fail-fast": false,
+    "includes": ["t/fixtures/inc.js"],
+    "log-level": "debug",
+    "no-colors": false,
+    "paths": ["t/fixtures/main.js", "t/fixtures/main2.js"],
+    "post": ["t/fixtures/post.js"],
+    "pre": ["t/fixtures/pre.js"],
+    "verbose": true,
+    "xunit": "results.xml"
+  }
+
+  # this will resolve to the following : 
+  # casperjs --auto-exit=false --concise=false --fail-fast=false
+  # --includes='t/fixtures/inc.js' --log-level='debug' --no-colors=false
+  # --post='t/fixtures/post.js' --pre='t/fixtures/pre.js' --verbose=true
+  # --xunit='results.xml' test t/fixtures/main.js t/fixtures/main2.js
+
+Note that I assumed that you will always put valid parameters inside a JSON file, so there is no control on that. 
 
 =head1 AUTHORS
 
@@ -154,7 +199,7 @@ Fabrice "pokki" Gabolde
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by E. Peroumalnaik.
+This software is copyright (c) 2014 by E. Peroumalnaik.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

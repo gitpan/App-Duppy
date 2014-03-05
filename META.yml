@@ -17,9 +17,10 @@ name: App-Duppy
 requires:
   Carp: 0
   DDP: 0
+  File::Which: 0
   FindBin: 0
   IO::All: 0
-  IPC::Cmd: 0
+  IPC::Run: 0
   JSON: 0
   Moo: 0
   MooX::Options: 0
@@ -28,4 +29,4 @@ requires:
   perl: 5.010
   strict: 0
   warnings: 0
-version: 0.04
+version: 0.05

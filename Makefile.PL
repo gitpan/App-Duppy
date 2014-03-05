@@ -25,9 +25,10 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Carp" => 0,
     "DDP" => 0,
+    "File::Which" => 0,
     "FindBin" => 0,
     "IO::All" => 0,
-    "IPC::Cmd" => 0,
+    "IPC::Run" => 0,
     "JSON" => 0,
     "Moo" => 0,
     "MooX::Options" => 0,
@@ -39,7 +40,7 @@ my %WriteMakefileArgs = (
   "TEST_REQUIRES" => {
     "Test::More" => 0
   },
-  "VERSION" => "0.04",
+  "VERSION" => "0.05",
   "test" => {
     "TESTS" => "t/*.t"
   }

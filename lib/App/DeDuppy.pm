@@ -92,6 +92,7 @@ sub repsac_nur {
 
 }
 
+
 1;
 
 __END__
@@ -103,7 +104,18 @@ App::DeDuppy - generate json files from casperjs test arguments
 
 =head1 VERSION
 
-version 0.04
+version 0.05
+
+=head1 SYNOPSIS
+
+  # will build json files used by duppy
+  deduppy --option1=value1 --option2=value2 --output=toafile.json
+
+=head1 DESCRIPTION 
+
+This is the companion script to L<duppy>, which role is to ease the process of building up json files used by duppy.
+
+It makes no assumption about the validity of the options you are passing, so you should better be careful. 
 
 =head1 AUTHORS
 
@@ -121,7 +133,7 @@ Fabrice "pokki" Gabolde
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by E. Peroumalnaik.
+This software is copyright (c) 2014 by E. Peroumalnaik.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
